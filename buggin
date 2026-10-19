@@ -1,1 +1,32 @@
+-- Live logger -> website channel: rbx-hub-yrmzsh
+-- SETUP: Game Settings > Security > Enable HTTP Requests = ON
+-- Put this in ServerScriptService as a Script (or your executor), then press Play / Execute.
+-- Everyone with the channel name can read it, so keep it private.
+
+local HttpService = game:GetService("HttpService")
+local TOPIC = "rbx-hub-yrmzsh"
+local BASE = "https://ntfy.sh/" .. TOPIC
+
+local function RemoteLog(msg, title)
+	msg = tostring(msg)
+	print(msg)
+	pcall(function()
+		HttpService:RequestAsync({
+			Url = BASE,
+			Method = "POST",
+			Headers = { ["X-Title"] = title or "Roblox" },
+			Body = msg,
+		})
+	end)
+end
+
+RemoteLog("Logger started in place " .. tostring(game.PlaceId), "System")
+RemoteLog("Hello from Roblox! If you see this on the website, the link works.", "Test")
+
+game:GetService("Players").PlayerAdded:Connect(function(p)
+	RemoteLog(p.Name .. " joined the game", "Join")
+end)
+game:GetService("Players").PlayerRemoving:Connect(function(p)
+	RemoteLog(p.Name .. " left the game", "Leave")
+end)
 
